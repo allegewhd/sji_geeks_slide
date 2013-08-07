@@ -27,7 +27,7 @@ var SLIDE_CONFIG = {
     company: 'Research center for advanced technology<br>SJI',
     gplus: 'http://plus.google.com/111417268135254875245',
     twitter: '@allegewhd',
-    www: 'http://www.you.com',
+    www: 'http://www.sji-inc.jp',
     github: 'http://github.com/allegewhd'
   }/*, {
     name: 'Second Name',
