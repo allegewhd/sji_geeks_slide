@@ -305,7 +305,8 @@ slides > slide:not(.nobackground):before {
   position: absolute;
   bottom: 20px;
   left: 60px;
-  background: url(../../images/google_developers_icon_128.png) no-repeat 0 50%;
+  /* background: url(../../images/google_developers_icon_128.png) no-repeat 0 50%; */
+  background: url(../../images/php/php_logo.png) no-repeat 0 50%;
   -webkit-background-size: 30px 30px;
   -moz-background-size: 30px 30px;
   -o-background-size: 30px 30px;
@@ -349,7 +350,7 @@ slides > slide.backdrop:after, slides > slide.backdrop:before {
 }
 /* line 180, ../scss/default.scss */
 slides > slide > hgroup + article {
-  margin-top: 45px;
+  margin-top: 5px;
 }
 /* line 184, ../scss/default.scss */
 slides > slide > hgroup + article.flexbox.vcenter, slides > slide > hgroup + article.flexbox.vleft, slides > slide > hgroup + article.flexbox.vright {

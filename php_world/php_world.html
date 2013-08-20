@@ -19,6 +19,17 @@ URL: http://tproject:7000/sji_geek.html
   <link rel="stylesheet" media="all" href="theme/css/default.css">
   <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
   <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+
+  <!-- Include syntax highter css and javascript fiels -->
+  <link href="sh/styles/shCoreMidnight.css" rel="stylesheet" type="text/css" />
+  <link href="sh/styles/shThemeMidnight.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="sh/scripts/shCore.js"></script>
+  <script type="text/javascript" src="sh/scripts/shBrushPhp.js"></script>
+  <script type="text/javascript" src="sh/scripts/shBrushBash.js"></script>
+  <style>
+    .code_font { font-size: 18px !important; }
+  </style>
+
   <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
 </head>
 <body style="opacity: 0">
@@ -27,7 +38,7 @@ URL: http://tproject:7000/sji_geek.html
 
   <slide class="nobackground">
     <article class="flexbox vcenter">
-      <span><img src="images/php/php_bg.jpg" width="800"></span>
+      <span><img src="images/php/logo_php.png" width="700"></span>
     </article>
   </slide>
 
@@ -55,17 +66,17 @@ URL: http://tproject:7000/sji_geek.html
             <li>Build web site</li>
           </ul>
         </li>
-        <li>PHP in depth
+        <li>Modern PHP
           <ul>
-            <li>Advanced OOP</li>
+            <li>Advanced OOP and SPL</li>
             <li>Database access</li>
             <li>Frameworks</li>
           </ul>
         </li>
         <li>PHP ecosystem
           <ul>
-            <li>Package management</li>
             <li>PSR</li>
+            <li>Package management</li>
             <li>Facebook and PHP</li>
           </ul>
         </li>
@@ -78,7 +89,7 @@ URL: http://tproject:7000/sji_geek.html
     <aside class="gdbar right bottom"><img src="images/php/php-logo.jpg"></aside>
     <article class="flexbox vleft auto-fadein">
       <q>
-        Send message to the world from here<br />
+        そとに発信しましょう<br />
         http://sjitech.github.io
       </q>
       <div class="author">
@@ -95,15 +106,16 @@ URL: http://tproject:7000/sji_geek.html
       <ul>
         <li>Another Haidong Wang:)</li>
         <li>Entered SJI group in 1999</li>
-        <li>Leavel SJI from 2012/05 to 2013/07, develop mobile social games in GREE</li>
+        <li>Leave SJI from 2012/05 to 2013/07, develop mobile social games in GREE</li>
         <li>Then, I'm back...
           <ul>
             <li>From 2013/08</li>
-            <li>Research center for advanced technology</li>
+            <li>Advanced-tech Research Center</li>
           </ul>
         </li>
         <li>Have lots of Java experience</li>
         <li>Playing with PHP recently</li>
+        <li>Vimer, also taking interest in emacs</li>
       </ul>
     </article>
   </slide>
@@ -111,25 +123,314 @@ URL: http://tproject:7000/sji_geek.html
   <slide>
     <hgroup>
       <h2>Quick start</h2>
-      <h3>Something worth to be shared</h3>
+      <h3>Syntax in 5 minutes</h3>
     </hgroup>
-    <article>
-      <ul>
-        <li>Amazon slogan(also recommended by GREE CTO)
-          <ul>
-            <li>Work hard</li>
-            <li>Have fun</li>
-            <li>Make history</li>
-          </ul>
-        </li>
-        <li>Words from GREE CEO lecture
-          <ul>
-            <li>いつの時代も傍観者ではなく、参加者になろう</li>
-          </ul>
-        </li>
-      </ul>
+    <article class="smaller">
+      <p>Php has a syntax very like C and Java</p>
+<!-- <pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [5, 6];"> -->
+<pre class="brush: php; class-name: 'code_font'; toolbar: false;">
+&lt;?php                   // write php code in &lt;?php ?&gt;
+    // one line comment
+    /*
+        block comment
+        write multiple lines comment
+    */
+    echo "hello world!";   // use ; seperate code
+
+    $hoge = "string var";
+    $moo = 3;
+    $foo = array(          // variable start with $
+        "bar" =&gt; 3,
+        "hoge" =&gt; "test",
+    );
+
+    function getBar($input)
+    {
+        return "hello $input";
+    }
+
+    // when source only contains php code, ?&gt; can be omitted
+</pre>
     </article>
   </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Data types and operation</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    $int = 100;
+    $float = 100.123;
+
+    $i = 1 + 1;
+    $i = 1 - 1;
+    $i = 1 * 1;
+    $i = 1 / 2;
+
+    $i++;
+    $i--;
+
+    $div = intval(3 / 2);
+    $mod = 3 % 2;
+
+    $name  = "wang haidong";
+    $hello = "hello $name";    // expand $name value
+    $hai   = 'hello $name';    // literal $name
+
+    $str = "hello" . " world"; // concat two string,  the reason for method call using -&gt;
+
+    // lots of global method for string
+    $substr = substr('abcd', 0, 2); // ab
+    $length = strlen('abcdef');
+    $split = explode(',', 'aaa,bbb,ccc');
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>Array is most used object in PHP.</li>
+          <li>Php application use array as config file.</li>
+        </ul>
+        <p><b>Code is data and data is code.</b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Array</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [9];">
+    $arr = array(                    // mixed type of key is allowed
+        2 =&gt; 4,
+        6 =&gt; "string value",
+        "strkey" =&gt; array(
+            "nest key" =&gt; "nest value",
+            9 =&gt; "something",
+        ),
+        "foo" =&gt; 100.23,
+        "bar" =&gt; "hello",         // for convenience, last comma is permitted
+    );
+
+    $val = $arr['strkey'];   // get value
+    $arr[6] = "new value";   // set value
+
+    // lots of global method
+    $keys = array_keys($arr);
+    $values = array_values($arr);
+    unset($arr['key']);        // delete key
+
+    // from PHP 5.4, can define array like json or python
+    $array = [
+        "foo" =&gt; "bar",
+        "bar" =&gt; "foo",
+    ];
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>PHP is developed as script language originally.</li>
+          <li>Many compromise exists in PHP for some history reason.</li>
+          <li>PHP looks weird from Java or other language programmers perspective.</li>
+        </ul>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Control structure</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [4,17];">
+    if ($foo == 2) {           // auto convert data type then check value
+    } else if ($foo === 3) {   // check value and data type, do not auto convert data type
+    } elseif ($foo &gt; 4) {   // elseif is OK
+    } else {
+    }
+
+    do
+    {
+    } while ($i &lt; 5);
+
+    while ($i &lt; 5) {
+    }
+
+    for ($i = 0 ; $i &lt; 5 ;$i++) {
+    }
+
+    foreach ($array as $v) {        // iterate through array values
+    }
+
+    foreach ($array as $k =&gt; $v) {   // iterate through array keys and values
+    }
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Method</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [7,17,18];">
+&lt;?php
+    function sum($v1, $v2) {             // global method
+        return $v1 + $v2;
+    }
+    $total = sum(1, 2); // $total = 3    // just call global method name
+
+    function get_multi($v1 = 10, $v2) {  // method parameter can have default value
+        $v1 += 100;
+        $v2 += 200;
+        return array($v1, $v2);
+    }
+
+    list($ret1, $ret2) = get_multi(1, 2); // $ret1 = 101 / $ret2 = 202
+
+    function foo()
+    {
+        $numargs = func_num_args();
+        $arg_list = func_get_args();     // dynamic method parameter
+        for ($i = 0; $i &lt; $numargs; $i++) {
+            echo "Argument $i is: " . $arg_list[$i] . "\n";
+        }
+    }
+
+    foo(1, 2, 3);
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>Starting with PHP 5, the object model was rewritten to allow for better performance and more features.</li>
+          <li>From PHP 5.3, namespace was added</li>
+        </ul>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>OOP</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [5,14,24];">
+    interface Person { }
+    class Foo {
+        public static $count = 0;
+        public static function plusOne() {
+            return "The count is " . ++self::$count . ".\n";
+        }
+        public function __construct() { }
+    }
+
+    class User extends Foo implements Person {
+        protected $name = null;
+
+        public function __construct($name) { // constructor, we'll talk about magic method later(__xxx)
+            parent::__construct();
+            $this-&gt;name = $name;
+        }
+        public function hello() {
+            printf("%s: Hello!\n", $this-&gt;name);
+        }
+    }
+    $user = new User('Mike');
+    $user-&gt;hello();        // call object method by -&gt;
+    echo Foo::plusOne();
+    echo Foo::$count . "\n";  // weird:)
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Some tips</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [5,14,24];">
+    echo "hello world";                 // no line break
+    print "hello world";                // no line break
+
+    $name = "sji";
+    printf("hello %s\n", $name);        // C style print
+    $message = sprintf("hello %s\n", $name);
+
+    class MyClass {
+        private $name = "hello";
+        protected $age = 36;
+        public $job = "programmer";
+    }
+
+    $my = new MyClass;          // () can be omitted
+    var_dump($my);              // for debug, with data type information
+    print_r($my);               // for debug, for html display, only value
+
+    isset($my);   // true
+    isset($unknown); // false
+
+    is_null($my);  // false
+    $foo = array();
+    is_null($foo);    // false
+    empty($foo);      // true
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Runtime Enviroment</h3>
+    </hgroup>
+    <article>
+      <p>
+        <li>Install
+          <ul>
+            <li>On every platform</li>
+            <li>Mostly installed with apache as mod_php</li>
+            <li>Recently nginx+FastCGI+php become popular</li>
+          </ul>
+        </li>
+        <li>How to run
+<pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
+    $ php hoge.php       # run script
+    $ php -r "var_dump('hello php');"  # evalutae php code directly
+    $ php -l hoge.php    # check syntax
+</pre>
+        </li>
+        <li>Show php info
+<pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
+    [2013-08-20 20:12] &gt; php -v
+    PHP 5.3.27-1~dotdeb.0 with Suhosin-Patch (cli) (built: Jul 25 2013 20:17:25)
+    Copyright (c) 1997-2013 The PHP Group
+    Zend Engine v2.3.0, Copyright (c) 1998-2013 Zend Technologies
+    [2013-08-20 20:29] &gt; php -i
+    phpinfo()
+    PHP Version =&gt; 5.3.27-1~dotdeb.0
+    ...
+</pre>
+        </li>
+      </p>
+    </article>
+  </slide>
+
+
 
   <slide>
     <hgroup>
@@ -308,21 +609,6 @@ URL: http://tproject:7000/sji_geek.html
 
 </slides>
 
-<script>
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-</script>
-
-<!--[if IE]>
-  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
-  <script>CFInstall.check({mode: 'overlay'});</script>
-<![endif]-->
+<script type="text/javascript">SyntaxHighlighter.all();</script>
 </body>
 </html>
