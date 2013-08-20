@@ -26,6 +26,7 @@ URL: http://tproject:7000/sji_geek.html
   <script type="text/javascript" src="sh/scripts/shCore.js"></script>
   <script type="text/javascript" src="sh/scripts/shBrushPhp.js"></script>
   <script type="text/javascript" src="sh/scripts/shBrushBash.js"></script>
+  <script type="text/javascript" src="sh/scripts/shBrushXml.js"></script>
   <style>
     .code_font { font-size: 18px !important; }
   </style>
@@ -144,8 +145,7 @@ URL: http://tproject:7000/sji_geek.html
         "hoge" =&gt; "test",
     );
 
-    function getBar($input)
-    {
+    function getBar($input) {
         return "hello $input";
     }
 
@@ -164,27 +164,24 @@ URL: http://tproject:7000/sji_geek.html
 <pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
     $int = 100;
     $float = 100.123;
+    $enable = true;     // true/false is case incentive
+    $user = null;       // null is also case incentive
 
     $i = 1 + 1;
     $i = 1 - 1;
     $i = 1 * 1;
     $i = 1 / 2;
-
+    $i = 3 % 2;
     $i++;
     $i--;
-
-    $div = intval(3 / 2);
-    $mod = 3 % 2;
 
     $name  = "wang haidong";
     $hello = "hello $name";    // expand $name value
     $hai   = 'hello $name';    // literal $name
-
     $str = "hello" . " world"; // concat two string,  the reason for method call using -&gt;
 
     // lots of global method for string
     $substr = substr('abcd', 0, 2); // ab
-    $length = strlen('abcdef');
     $split = explode(',', 'aaa,bbb,ccc');
 </pre>
     </article>
@@ -370,10 +367,9 @@ URL: http://tproject:7000/sji_geek.html
 
     $name = "sji";
     printf("hello %s\n", $name);        // C style print
-    $message = sprintf("hello %s\n", $name);
+    $message = sprintf("hello %s\n", $name);  // create new string
 
     class MyClass {
-        private $name = "hello";
         protected $age = 36;
         public $job = "programmer";
     }
@@ -382,16 +378,42 @@ URL: http://tproject:7000/sji_geek.html
     var_dump($my);              // for debug, with data type information
     print_r($my);               // for debug, for html display, only value
 
-    isset($my);   // true
-    isset($unknown); // false
-
-    is_null($my);  // false
-    $foo = array();
-    is_null($foo);    // false
-    empty($foo);      // true
 </pre>
     </article>
   </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Syntax in 5 minutes</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Some tips</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [5,14,24];">
+    $my = 5;
+
+    isset($my);   // true
+    isset($unknown); // false
+
+    $foo = array();
+    is_null($foo);    // false
+    empty($foo);      // true
+
+    define('LOGIN_COUNT', 2);  // constant
+    echo LOGIN_COUNT;          // constant accessed without $
+
+    echo &lt;&lt;&lt;EOM      // here doc string
+    PHPとは、HTMLへの埋め込み型プログラミング言語です。&lt;br /&gt;
+    正式名称は「PHP: Hypertext Preprocessor」です。&lt;br /&gt;
+    PHPは{$purpose}に利用されます。&lt;br /&gt;
+    &lt;a href="detail.php"&gt;詳細を読む&lt;a&gt;
+    EOM;
+</pre>
+    </article>
+  </slide>
+
+
+
 
   <slide>
     <hgroup>
@@ -402,9 +424,9 @@ URL: http://tproject:7000/sji_geek.html
       <p>
         <li>Install
           <ul>
-            <li>On every platform</li>
+            <li>PHP can be installed on any major platform</li>
             <li>Mostly installed with apache as mod_php</li>
-            <li>Recently nginx+FastCGI+php become popular</li>
+            <li>Recently nginx+FastCGI/FPM+php become popular</li>
           </ul>
         </li>
         <li>How to run
@@ -429,6 +451,71 @@ URL: http://tproject:7000/sji_geek.html
       </p>
     </article>
   </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Build web site</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Get HTTP data</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [1,2];">
+    echo $_SERVER['REQUEST_METHOD'];        // get server enviroment variables
+    echo $_SERVER["HTTP_USER_AGENT"];
+
+    echo $_POST['username'];                // get user input
+    echo $_GET['index'];
+</pre>
+      <p>Cookie and session</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [1,2];">
+    $time = $_COOKIE["firstphp"];
+    setcookie("firstphp", "value", time()+60*60);
+
+    session_start();
+    $_SESSION['syouhin'] = "new_session_value";
+    $got = $_SESSION['syouhin'];
+    session_destroy();
+</pre>
+    </article>
+  </slide>
+
+
+  <slide>
+    <hgroup>
+      <h2>Quick start</h2>
+      <h3>Build web site</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Upload file</p>
+<pre class="brush: html; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;form enctype=&quot;multipart/form-data&quot; action = &quot;test_02.php&quot; method = &quot;post&quot; &gt;
+        &lt;input type=&quot;file&quot; name=&quot;file_data1&quot;&gt;
+        &lt;input type=&quot;submit&quot; name=&quot;Upload&quot; value=&quot;Upload&quot;&gt;
+    &lt;/form&gt;
+</pre>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [3];">
+    $filename = $_FILES["file_data1"]["name"];
+    $filesize = $_FILES["file_data1"]["size"];
+    $result = @move_uploaded_file( $_FILES["file_data1"]["tmp_name"], $filename); // ignore error
+    if ( $result === true ) {
+        echo "Upload successfully!";
+    }
+</pre>
+      <p>Cookie and session</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    <html>
+    <body>
+        Welcome <?php echo $username; ?>!<br />
+    </body>
+    </html>
+</pre>
+    </article>
+  </slide>
+
+
+
+
+
 
 
 
