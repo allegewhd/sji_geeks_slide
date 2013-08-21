@@ -27,6 +27,7 @@ URL: http://tproject:7000/sji_geek.html
   <script type="text/javascript" src="sh/scripts/shBrushPhp.js"></script>
   <script type="text/javascript" src="sh/scripts/shBrushBash.js"></script>
   <script type="text/javascript" src="sh/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="sh/scripts/shBrushJScript.js"></script>
   <style>
     .code_font { font-size: 18px !important; }
   </style>
@@ -69,7 +70,7 @@ URL: http://tproject:7000/sji_geek.html
         </li>
         <li>Modern PHP
           <ul>
-            <li>Advanced OOP and SPL</li>
+            <li>Advanced OOP</li>
             <li>Database access</li>
             <li>Frameworks</li>
           </ul>
@@ -402,7 +403,8 @@ URL: http://tproject:7000/sji_geek.html
     define('LOGIN_COUNT', 2);  // constant
     echo LOGIN_COUNT;          // constant accessed without $
 
-    echo &lt;&lt;&lt;EOM      // here doc string
+    // here doc string
+    echo &lt;&lt;&lt;EOM
     PHPとは、HTMLへの埋め込み型プログラミング言語です。&lt;br /&gt;
     正式名称は「PHP: Hypertext Preprocessor」です。&lt;br /&gt;
     PHPは{$purpose}に利用されます。&lt;br /&gt;
@@ -438,7 +440,7 @@ URL: http://tproject:7000/sji_geek.html
         </li>
         <li>Show php info
 <pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
-    [2013-08-20 20:12] &gt; php -v
+    [2013-08-20 20:12] &gt; php -v   # show php.ini content
     PHP 5.3.27-1~dotdeb.0 with Suhosin-Patch (cli) (built: Jul 25 2013 20:17:25)
     Copyright (c) 1997-2013 The PHP Group
     Zend Engine v2.3.0, Copyright (c) 1998-2013 Zend Technologies
@@ -501,22 +503,831 @@ URL: http://tproject:7000/sji_geek.html
         echo "Upload successfully!";
     }
 </pre>
-      <p>Cookie and session</p>
+      <p>Interact with html</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: []; html-script: true">
+    &lt;html&gt;
+    &lt;body&gt;
+        Welcome &lt;?php echo $username; ?&gt;!&lt;br /&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+</pre>
+      <p>There's lots of template libraries, no need to write inline php code in html now.</p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <p><b>As to be compatible with old version of PHP, PHP has lots of recommend best practice instead of standards.</b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>About classloader</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>PHP do not have classloader. Developers make their own implements over and over again.</p>
 <pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
-    <html>
-    <body>
-        Welcome <?php echo $username; ?>!<br />
-    </body>
-    </html>
+    &lt;?php
+        // only produce a warning (E_WARNING) and the script will continue
+        include 'header.php';
+        // produce a fatal error (E_COMPILE_ERROR) and stop the script
+        require 'header.php';
+
+        include_once 'foo.php';
+        require_once 'foo.php';
+
+        $val = functionFromIncludeFile();
+</pre>
+      <p>In large projects, dependancy management become impossible when include/require exists in every scripts.</p>
+      <p>Then we realize a classloader(or scripts loader) stuff is necessary for PHP</p>
+      <ul class="build">
+        <li>Remove include/require code from scripts and centerize them to one script.</li>
+        <li>Load the above script on application start.(bootstrap is a usual name)</li>
+        <li>Make it a best practice and standard.(PSR-0, we'll talk later)</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>Learn from Java to make script structure by namespace.</li>
+          <li>_ char is legacy problem. Lots of legacy code using _ to avoid duplicated class name.</li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>PSR-0 classloader</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>A recommended classloader implment from PSR-0 documents.</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;?php
+
+    function autoload($className)
+    {
+        $className = ltrim($className, '\\');
+        $fileName  = '';
+        $namespace = '';
+        if ($lastNsPos = strripos($className, '\\')) {
+            $namespace = substr($className, 0, $lastNsPos);
+            $className = substr($className, $lastNsPos + 1);
+            $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+        }
+        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+
+        require $fileName;
+    }
+</pre>
+      <p>Convert namespace(talk later) and _ char into path seperator</p>
+<pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
+      \namespace\package\Class_Name =&gt;
+                /path/to/project/lib/vendor/namespace/package/Class/Name.php
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>Because / is used in regular expression, namespace use \ as delimiter</li>
+        </ul>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Namespace</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Just like pakage in Java or module in Python</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    // myproject/database/connection.php
+    &lt;?php
+    namespace MyProject\Database
+
+    class Connection {
+        // Handling database connections
+    }
+</pre>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;?php
+    namespace OtherProject;
+
+    // This holds the MyProject\Database namespace with a Connection class in it
+    require &apos;myproject/database/connection.php&apos;;
+
+    // use its fully qualified name
+    $connection = new \MyProject\Database\Connection();
+
+    // Import the Connection class
+    use MyProject\Database\Connection;
+    $connection = new Connection();
+
+    // alias
+    use MyProject\Database as MyDatabase;
+    $connection = new MyDatabase\Connection();
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <p><b>
+            When the end of a file is reached, PHP automatically releases all resources
+        </b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Magic method</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Constructors and Destructors</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [5,6,9,10];">
+    &lt;?php
+    class MyClass  {
+        public $prop1 = &quot;I&apos;m a class property!&quot;;
+
+        public function __construct()  {
+            echo &apos;The class &quot;&apos;, __CLASS__, &apos;&quot; was initiated!&lt;br /&gt;&apos;;
+        }
+
+        public function __destruct() {  // executed on exit of this script
+            echo &apos;The class &quot;&apos;, __CLASS__, &apos;&quot; was destroyed.&lt;br /&gt;&apos;;
+        }
+
+        public function setProperty($newval)  {
+            $this-&gt;prop1 = $newval;
+        }
+
+        public function getProperty()  {
+            return $this-&gt;prop1 . &quot;&lt;br /&gt;&quot;;
+        }
+    }
+
+    $obj = new MyClass;
+    echo $obj-&gt;getProperty();
+    unset($obj);  // Destroy the object
 </pre>
     </article>
   </slide>
 
 
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b>
+        </b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Magic method</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>ToString</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;?php
+    class MyClass  {
+        public $prop1 = &quot;I&apos;m a class property!&quot;;
+
+        public function __toString()  {
+            echo &quot;Using the toString method: &quot;;
+            return $this-&gt;getProperty();
+        }
+    }
+
+    $obj = new MyClass;
+    echo $obj; // Output the object as a string
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b>
+        </b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Magic method</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Property Overloading</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    class Device {
+        public $data = array(); // stores misc. data in an array
+        public function  __get($name) {
+            if(array_key_exists($name, $this-&gt;data)) { // check if the named key exists in our array
+                return $this-&gt;data[$name]; // then return the value from the array
+            }
+            return null;
+        }
+        public function  __set($name, $value) {
+            $this-&gt;data[$name] = $value; // use the property name as the array key
+        }
+        public function  __isset($name) {
+            return array_key_exists($name, $this-&gt;data);
+        }
+        public function  __unset($name) {
+            unset($this-&gt;data[$name]); // forward the unset() to our array element
+        }
+        //...
+    }
+
+    $device-&gt;user = &apos;Steve&apos;;  // call __set()
+    echo $device-&gt;user;  // call __get()
+    unset($device-&gt;user);  // call __unset()
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <p><b>
+            Now, create framework like Java SpringFramework is so easy for PHP.
+        </b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Magic method</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Method Overloading</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    class Device {
+        //...
+        public function  __call($name, $arguments) {
+            // make sure our child object has this method
+            if(method_exists($this-&gt;connection, $name)) {
+                // forward the call to our child object
+                return call_user_func_array(array($this-&gt;connection, $name), $arguments);
+            }
+            return null;
+        }
+        //...
+    }
+
+    $device = new Device(new Battery(), &apos;iMagic&apos;);
+    $device-&gt;iDontExist();
+    // __call() forwards this to $device-&gt;connection-&gt;iDontExist()
+</pre>
+      <p>From PHP 5.3, __callStatic() added</p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;?php
+    function __autoload($name) {  // global function
+        $file = &apos;/some/lib/path/&apos; . $name . &apos;.php&apos;;
+        if (is_readable($file)) {
+            require_once $file;
+        }
+    }
+
+    // when refer a class not exist, __autoload is called
+    $foo = new Foo();
+</pre>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Magic methods</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>There's other magic methods learned from Java</p>
+      <ul class="build">
+        <li>__clone(): called on the copy of a cloned object after cloning takes place.</li>
+        <li>__sleep(): called when the serialize() function is called on the object.</li>
+        <li>__wakeup(): called when the unserialize() function is called on the stored object.</li>
+        <li>__invoke() (PHP 5.3): called when code tries to use the object as a function.
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    class Device {
+        public function __invoke($data) {
+            echo $data;
+        }
+    }
+    $device = new Device(new Battery(), &apos;iMagic&apos;);
+    $device(&apos;test&apos;); // equiv to $device-&gt;__invoke(&apos;test&apos;)
+</pre>
+        </li>
+        <li>__autoload(): called when a class that doesn’t exist is referenced</li>
+      </ul>
+    </article>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Error handling</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>Legacy error handler</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [11];">
+    &lt;?php
+        //error handler function
+        function customError($errno, $errstr)
+        {
+            echo &quot;&lt;b&gt;Error:&lt;/b&gt; [$errno] $errstr&lt;br&gt;&quot;;
+            echo &quot;Ending Script&quot;;
+            die();
+        }
+
+        //set error handler
+        set_error_handler(&quot;customError&quot;,E_USER_WARNING);
+
+        //trigger error
+        $test=2;
+        if ($test&gt;1)
+        {
+            trigger_error(&quot;Value must be 1 or below&quot;,E_USER_WARNING);
+        }
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <p>You can define global exception handler like legacy error handler</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;?php
+        function myException($exception)
+        {
+            echo &quot;Exception: &quot; , $exception-&gt;getMessage();
+        }
+
+        set_exception_handler(&apos;myException&apos;);
+
+        throw new Exception(&apos;Uncaught Exception occurred&apos;);
+</pre>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Error handling</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>From PHP 5, Exception class was added</p>
+      <p>From PHP 5.5, finally keyword was added</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    &lt;?php
+    try {
+        throw new Exception(&apos;error message&apos;);
+    } catch (Exception $e) {
+        echo $e-&gt;getMessage(), PHP_EOL;
+        echo $e-&gt;getCode(), PHP_EOL; // error code
+        echo $e-&gt;getFile(), PHP_EOL; // error source file
+        echo $e-&gt;getLine(), PHP_EOL; // error source line number
+        echo $e-&gt;getTraceAsString(), PHP_EOL; // error stack trace
+    }
+</pre>
+      <p>You can create own exception class inherited from Exception.</p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3>Reflection in PHP</h3>
+    </hgroup>
+    <article class="smaller">
+      <p></p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [3];">
+    $editor = new Editor(&apos;John Doe&apos;);
+
+    $reflector = new ReflectionClass($editor);
+    var_dump($reflector-&gt;getMethods());
+
+    // invoke method
+    $publishMethod = $reflector-&gt;getMethod(&apos;publish&apos;);
+    $publishMethod-&gt;invoke($editor); // second call to publish()
+
+    // access property
+    $editorName = $reflector-&gt;getProperty(&apos;name&apos;);
+    $editorName-&gt;setAccessible(true);
+    $editorName-&gt;getValue($editor);
+    $editorName-&gt;setValue($editor, &apos;Mark Twain&apos;);
 
 
+    // indirect reflection use
+    call_user_func(array($editor, &apos;getEditorName&apos;));
 
+    $methodName = &apos;getEditorName&apos;;
+    var_dump($editor-&gt;$methodName());
+</pre>
+    </article>
+  </slide>
 
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Advanced OOP</h2>
+      <h3><a href="http://jp1.php.net/manual/en/book.spl.php">SPL(Standard PHP Library)</a></h3>
+    </hgroup>
+    <article class="smaller">
+      <p>C++ STL(Standard Template Library)</p>
+      <p>Or Python Standard Library</p>
+      <p>From PHP 5, forced on from PHP 5.3</p>
+      <p>Avoid to reinvent the wheel</p>
+      <ul class="build">
+        <li>Data Structures(stack, queue, heap, linklist etc.)</li>
+        <li>Iterators(ArrayIterator, RecursiveArrayIterator etc.)</li>
+        <li>Extended exception subclasses</li>
+        <li>File Handling(Like Java 7 NIO.2)</li>
+        <li>Language enhancement(spl_autoload, SplObserver etc.)</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Database access</h2>
+      <h3>PHP and MySQL</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>traditional mysql API</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    // Connect
+    mysql_connect(&apos;localhost&apos;, &apos;username&apos;, &apos;password&apos;)
+            or die(&apos;Could not connect: &apos; . mysql_error());
+
+    // Choose a database
+    mysql_select_db(&apos;someDatabase&apos;) or die(&apos;Could not select database&apos;);
+
+    // Perform database query
+    $query = &quot;SELECT * from someTable&quot;;
+    $result = mysql_query($query) or die(&apos;Query failed: &apos; . mysql_error());
+
+    // Filter through rows and echo desired information
+    while ($row = mysql_fetch_object($result)) {
+        echo $row-&gt;name;
+    }
+</pre>
+      <p>Access mysql db through global functions</p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Database access</h2>
+      <h3>PHP and MySQL</h3>
+    </hgroup>
+    <article class="smaller">
+      <p>PDO, OOP method like JDBC</p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    $name = &apos;Joe&apos;;
+
+    try {
+        $conn = new PDO(&apos;mysql:host=localhost;dbname=myDatabase&apos;, $username, $password);
+        $conn-&gt;setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // execute sql directly
+        $data = $conn-&gt;query(&apos;SELECT * FROM myTable WHERE name = &apos; . $conn-&gt;quote($name));
+
+        // prepared statement, avoid SQL injection
+        $stmt = $conn-&gt;prepare(&apos;SELECT * FROM users WHERE username = :username&apos;);
+        $data = $stmt-&gt;execute(array(&apos;:username&apos; =&gt; PDO::quote($_GET[&apos;username&apos;])));
+
+        foreach($data as $row) {
+            print_r($row);
+        }
+    } catch(PDOException $e) {
+        echo &apos;ERROR: &apos; . $e-&gt;getMessage();
+    }
+</pre>
+    <p>MySQLi is another API for access mysql db, but now PDO is recommended.</p>
+    <p>PDO supports 12 different drivers, opposed to MySQLi, which supports MySQL only</p>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3><a href="http://framework.zend.com/">Zend Framework</a></h3>
+    </hgroup>
+    <article>
+      <iframe data-src="http://framework.zend.com/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>Symfony</h3>
+    </hgroup>
+    <article>
+      <iframe data-src="http://symfony.com/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>Ethna</h3>
+    </hgroup>
+    <article>
+      <p>Created by GREE CTO and used widely in GREE services.</p>
+      <p>Inspired by Struts framework</p>
+      <iframe data-src="http://ethna.jp/doc/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>CakePHP</h3>
+    </hgroup>
+    <article>
+      <iframe data-src="http://cakephp.org/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>FuelPHP</h3>
+    </hgroup>
+    <article>
+      <iframe data-src="http://fuelphp.com/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>CodeIgniter</h3>
+    </hgroup>
+    <article>
+      <iframe data-src="http://ellislab.com/codeigniter"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>Yii</h3>
+    </hgroup>
+    <article>
+      <iframe data-src="http://www.yiiframework.com/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>Laravel</h3>
+    </hgroup>
+    <article>
+      <p>Inspired by ruby <a href="http://www.sinatrarb.com/">Sinatra</a> framework</p>
+      <iframe data-src="http://laravel.com/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3>Phalcon</h3>
+    </hgroup>
+    <article>
+      <p>an open source web framework for PHP delivered as a C extension</p>
+      <iframe data-src="http://www.phalconphp.com/en/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+    class UserModelTest extends PHPUnit_Framework_TestCase {
+        public function testGetUser() {
+            $user = new User();
+            $currentUser = $user-&gt;getCurrentUser();
+            $this-&gt;assertEquals(1, $currentUser-&gt;id);
+        }
+    }
+</pre>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Frameworks</h2>
+      <h3><a href="https://github.com/sebastianbergmann/phpunit/">PhpUnit</a></h3>
+    </hgroup>
+    <article>
+      <p>Inspired by JUnit</p>
+      <iframe data-src="https://github.com/sebastianbergmann/phpunit/"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>PHP ecosystem</h2>
+      <h3>PSR(PHP Standards Recommendation)</h3>
+    </hgroup>
+    <article class="smaller">
+      <p><a href="http://www.php-fig.org/">PHP Framework Interop Group(FIG)</a> intends to host a cross-section of the PHP ecosystem</p>
+      <p>At the time of this writing, that dialogue(between project representatives) has spawned four PHP Standards Recommendations: PSR-0 to PSR-3.</p>
+      <p><a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md">PSR-0</a>: Autoloader Standard</p>
+      <ul class="build">
+        <li>We use require/include everywhere</li>
+        <li>Then PHP 5′s magic __autoload() function was introduced</li>
+        <li>PHP 5.1.2 made autoloading even better by introducing spl_autoload(), which allows you to register a chain of autoloading functions with spl_autoload_register().</li>
+        <li><a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md#example-implementation">Example implment</a></li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>PHP ecosystem</h2>
+      <h3>PSR(PHP Standards Recommendation)</h3>
+    </hgroup>
+    <article class="smaller">
+      <p><a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md">PSR-1</a>: Basic Coding Standard</p>
+      <ul>
+        <li>Only use the &lt;?php and &lt;?= tags.</li>
+        <li>Only use UTF-8 without BOM for PHP code.</li>
+        <li>Separate side-effects</li>
+        <li>Enforce PSR-0.</li>
+        <li>Class names must be defined in StudlyCaps.</li>
+        <li>Class constants must be defined in upper case with underscore separators.</li>
+        <li>Method names must be defined in camelCase.</li>
+      </ul>
+      <p><a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md">PSR-2</a>: Coding Style Guide</p>
+      <p><a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md">PSR-3</a>: Logger Interface</p>
+      <p>Recent frameworks almost implements PSR-0 and PSR-1.</p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>PHP ecosystem</h2>
+      <h3>Package management</h3>
+    </hgroup>
+    <article class="smaller">
+      <p><a href="http://pear.php.net/">PEAR</a> PHP Extension and Application Repository</p>
+      <p>Install ethna framework from PEAR</p>
+<pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
+    $ pear channel-discover pear.ethna.jp
+    $ pear install -a ethna/ethna # install with dependencies
+    $ pear install ethna/ethna # install withou dependencies
+    $ pear upgrade ethna/ethna
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>PHP ecosystem</h2>
+      <h3>Package management</h3>
+    </hgroup>
+    <article class="smaller">
+      <p><a href="http://getcomposer.org/">composer</a> Dependency Manager for PHP</p>
+      <p>Package management like NodeJS npm or Ruby bundle</p>
+      <p>Use json config file</p>
+      <p>Declaring dependencies in composer.json</p>
+<pre class="brush: js; class-name: 'code_font'; toolbar: false; highlight: [];">
+    {
+        "require": {
+            "monolog/monolog": "1.2.*"
+        }
+    }
+</pre>
+      <p>Using Composer in your project folder</p>
+<pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
+    $ php composer.phar install
+    $ composer install
+</pre>
+      <p>Autoloading</p>
+<pre class="brush: bash; class-name: 'code_font'; toolbar: false; highlight: [];">
+    require 'vendor/autoload.php';
+</pre>
+      <p>Almost every modern framework support composer now.</p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+        <p><b></b></p>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>PHP ecosystem</h2>
+      <h3>Facebook and PHP</h3>
+    </hgroup>
+    <article class="smaller">
+      <p></p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+</pre>
+    </article>
+  </slide>
 
 
   <slide>
@@ -529,15 +1340,6 @@ URL: http://tproject:7000/sji_geek.html
     </article>
   </slide>
 
-  <slide>
-    <hgroup>
-      <h2>Pirate Kingdom Columbus</h2>
-      <h3>What I did in GREE</h3>
-    </hgroup>
-    <article>
-      <iframe data-src="http://gree.jp/?mode=static&act=page&page=ext_special_pirate"></iframe>
-    </article>
-  </slide>
 
   <slide>
     <hgroup>
@@ -559,130 +1361,16 @@ URL: http://tproject:7000/sji_geek.html
     </article>
   </slide>
 
-  <slide>
-    <hgroup>
-      <h2>Software engineers in GREE</h2>
-      <h3>How we achieve</h3>
+  <slide class="segue dark nobackground">
+    <aside class="gdbar"><img src="images/php/php-logo.jpg"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Visit <a href="https://github.com/allegewhd/sji_geeks_slide">this presentation</a> on Github</h2>
+      <h3>Or http://tproject:7000/php_world/php_world.html</h3>
     </hgroup>
-    <article>
-      <p>we believe small talents can do great job</p>
-      <ul class="build">
-        <li>work harder :)</li>
-        <li>HRT(humility, respect, trust)</li>
-        <li>automation, let's computer do the stuff, not people</li>
-        <li>high level of personal management</li>
-        <li>open and effective communication</li>
-        <li>require leadship for all engineers</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <hgroup>
-      <h2>Software engineers in GREE</h2>
-      <h3>Good things and bad things</h3>
-    </hgroup>
-    <article>
-      <p>Good parts</p>
-      <ul class="build">
-        <li>grow up quickly</li>
-        <li>all information are opened to you</li>
-        <li>less office politics</li>
-        <li>less distraction, you can focus on code</li>
-        <li>take risk and do not fear to fail</li>
-      </ul>
-      <p>Bad parts</p>
-      <ul class="build">
-        <li>you need careful health management</li>
-        <li>redundant information make you nervous</li>
-        <li>annoying gree alert mail in the middle of night</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <aside class="note">
-      <section>
-        <p><b>Know how to understand, communicate with, and collaborate with other people</b></p>
-      </section>
-    </aside>
-    <hgroup>
-      <h2>How to be a geek</h2>
-    </hgroup>
-    <article>
-      <p>Some stuff from GREE engineer advices for incomer</p>
-      <ul class="build fade">
-        <li>Love code and try to ship great software</li>
-        <li>Get into open source world</li>
-        <li>Have fun with effort</li>
-        <li>Lose the ego</li>
-        <li>Pursue the bottom matter, not just chitchat</li>
-        <li>Do more practice to be professional</li>
-        <li>Be in friendly rivary with other geeks</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <aside class="note">
-      <section>
-        <ul>
-          <li>Automate some task you do every day</li>
-          <li>Learn new computer language</li>
-          <li>Start open source project on <a href="https://github.com">github</a> or <a href="https://bitbucket.org/">bitbucket</a>.</li>
-        </ul>
-        <p><b>Rome was not built in a day</b></p>
-      </section>
-    </aside>
-    <hgroup>
-      <h3>To SJI geeks</h3>
-    </hgroup>
-    <article>
-      <p>How to start</p>
-      <ul class="build fade">
-        <li>Start from simple thing</li>
-        <li>Fail fast; learn; iterate</li>
-        <li>Leave time for learning</li>
-        <li>Be open on influence</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <aside class="note">
-      <section>
-        <p><b>Enhances corporate branding by your personal branding</b></p>
-      </section>
-    </aside>
-    <hgroup>
-      <h3>To SJI geeks</h3>
-    </hgroup>
-    <article>
-      <p>Build personal brand</p>
-      <ul class="build fade">
-        <li>Write personal blog</li>
-        <li>Write for tech sites</li>
-        <li>Get into open source projects</li>
-        <li>Bring up new geeks</li>
-        <li>Show your face on tech conference</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide class="segue dark quote nobackground">
-    <aside class="gdbar right bottom"><img src="images/sji/mr_geek.jpg"></aside>
-    <article class="flexbox vleft auto-fadein">
-      <q>
-        Talk is cheap. Show me the code.
-      </q>
-      <div class="author">
-        Linus Torvalds
-      </div>
-    </article>
   </slide>
 
   <slide class="thank-you-slide segue nobackground">
-    <aside class="gdbar right"><img src="images/sji/mr_geek.jpg"></aside>
+    <aside class="gdbar right"><img src="images/php/php-logo.jpg"></aside>
     <article class="flexbox vleft auto-fadein">
       <h2>&lt;Thank You!&gt;</h2>
       <p></p>
