@@ -1309,54 +1309,51 @@ URL: http://tproject:7000/sji_geek.html
   </slide>
 
   <slide>
-    <aside class="note">
-      <section>
-        <ul>
-          <li></li>
-          <li></li>
-        </ul>
-        <p><b></b></p>
-      </section>
-    </aside>
     <hgroup>
       <h2>PHP ecosystem</h2>
       <h3>Facebook and PHP</h3>
     </hgroup>
     <article class="smaller">
-      <p></p>
-<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: [];">
+      <p>Facebook is the largest application writed with PHP.</p>
+      <p>For performance reason, Facebook developed HipHop and HipHop VM(HHVM)</p>
+        <ul>
+          <li><a href="https://github.com/facebook/hiphop-php">HipHop</a> is a PHP-to-C++ compiler.</li>
+          <li>HHVM is a Virtual Machine like JVM with just-in-time(JIT) compilation.</li>
+        </ul>
+      <p align="center">
+      <img src="images/php/hiphop_trans.png" alt="develop department work photos" title="develop department work photos" width="500">
+      </p>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <p><b>How to interact with JavaScript and HTML consistently</b></p>
+<pre class="brush: php; class-name: 'code_font'; toolbar: false; highlight: []; html-script: true">
+    &lt;div class=&quot;entry&quot;&gt;
+        &lt;h1&gt;{{title}}&lt;/h1&gt;
+        &lt;div class=&quot;body&quot;&gt;
+            {{{body_content}}}
+        &lt;/div&gt;
+    &lt;/div&gt;
 </pre>
-    </article>
-  </slide>
-
-
-  <slide>
+      </section>
+    </aside>
     <hgroup>
-      <h2>Software engineers in GREE</h2>
-    </hgroup>
-    <article class="flexbox vcenter">
-      <img src="images/sji/gree_engineers.jpg" alt="develop department work photos" title="develop department work photos" width="500" height="500">
-      <footer class="source">source: GREE Tech facebook</footer>
-    </article>
-  </slide>
-
-
-  <slide>
-    <hgroup>
-      <h2>Software engineers in GREE</h2>
-      <h3>What we do</h3>
+      <h2>The future of PHP</h2>
+      <h3></h3>
     </hgroup>
     <article>
-      <p>develop and operate mobile social game services running on GREE platform</p>
+      <p>We are living in exciting times.</p>
       <ul class="build">
-        <li>analyze history log and decide new game function with game directors</li>
-        <li>update game resource files(animations, images and sounds) for new function</li>
-        <li>develop, QA support(set up QA server, etc.), code review</li>
-        <li>staging deploy and production deploy</li>
-        <li>server status monitor and support infrastructure team to resolve hardware issues</li>
-        <li>some server backup stuff</li>
-        <li>resolve issues from custom support team</li>
-        <li>update iOS and Android client application</li>
+        <li>Better unicode support? Maybe</li>
+        <li>Minor enhancements that mirror other programming languages. Already in progress</li>
+        <li>The ecosystem will have less frameworks, more meta-frameworks.</li>
+        <li>There will be a plethora of new extensions.Like improvement in Java JNI</li>
+        <li>There will be less reliance on the Zend Engine. HipHop and Parrot has great chance</li>
+        <li>PHP will adapt.Not just web language, maybe embedded in mobile device?</li>
+        <li>Drop some obsolete baggage, keep moving</li>
       </ul>
     </article>
   </slide>
